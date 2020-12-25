@@ -37,6 +37,10 @@ Route::post('/checkOut', 'App\Http\Controllers\ProductController@checkOut')->nam
 
 Route::get('/cart', 'App\Http\Controllers\ProductController@cart')->name('cart');
 
+Route::get('/all-orders', 'App\Http\Controllers\ProductController@allOrders')->name('all-orders');
+
+Route::get('/order/{id}', 'App\Http\Controllers\ProductController@eachOrder')->name('eachorder');
+
 Route::get('/order-summary', 'App\Http\Controllers\ProductController@orderSummary')->name('order-summary');
 
 Route::get('/remove_cart_item/{id}', 'App\Http\Controllers\ProductController@removeCartItem')->name('removeCartItem');

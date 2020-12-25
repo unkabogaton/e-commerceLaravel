@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Auth;
 
 if (Auth::check()) {
     $total = ProductController::cartItem();
-    $totalPrice= ProductController::totalPrice();
+    $totalPrice = ProductController::totalPrice();
 }
 
 ?>
@@ -30,22 +30,27 @@ if (Auth::check()) {
                     <li class="nav-item active">
                         <a class="nav-link" aria-current="page" href="/home">Home</a>
                     </li>
+
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Link</a>
+                        <a class="nav-link" href="/cart" aria-current="page">Cart({{$total}})</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
-                    </li>
+
                     @if(Auth::check())
                     {
                     <li class="nav-item">
-                        <a class="nav-link" href="/cart" tabindex="-1" aria-disabled="true">Cart({{$total}})</a>
+                        <a class="nav-link" href="/all-orders" aria-current="page">Orders</a>
+                    </li>
+                    <li class="nav-item">
+                        <form action="/logout" method="POST">
+                            @csrf
+                            <button type="submit" class="nav-link" > Signout </a>
+                        </form>
                     </li>
                     }
                     @else
                     {
                     <li class="nav-item">
-                        <a class="nav-link" href="/login" tabindex="-1" aria-disabled="true">Signin</a>
+                        <a class="nav-link" href="/login" aria-current="page">Signin</a>
                     </li>
                     }
                     @endif

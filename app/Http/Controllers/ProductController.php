@@ -128,9 +128,9 @@ class ProductController extends Controller
     {
         $userId = auth()->user()->id;
         $orderExist = DB::table('orders')
-        ->where('user_id', $userId)
-        ->where('status', 'pending')
-        ->first();
+            ->where('user_id', $userId)
+            ->where('status', 'pending')
+            ->first();
 
         $createOrder = new Order;
         $createOrder->user_id = auth()->user()->id;
@@ -138,11 +138,9 @@ class ProductController extends Controller
         $createOrder->billing_address = $request->billing_address;
         $createOrder->payment_mode = $request->payment_mode;
         $createOrder->status = $request->status;
-        if(!$orderExist)
-        {
+        if (!$orderExist) {
             $createOrder->save();
-        }
-        else{
+        } else {
             Order::where('user_id', $userId)->where('status', "pending")->delete();
             $createOrder->save();
         }
@@ -171,6 +169,11 @@ class ProductController extends Controller
             ->where('status', 'pending')
             ->value('orders.id');
 
+        $total_amount = DB::table('carts')
+            ->join('meriendas', 'carts.merienda_id', '=', 'meriendas.id')
+            ->where('carts.user_id', $userId)
+            ->sum(DB::raw('(meriendas.price * carts.quantity)'));
+
         foreach ($allCart as $cart_item) {
             $ordered = new OrderedMerienda;
             $ordered->merienda_id = $cart_item['merienda_id'];
@@ -181,7 +184,77 @@ class ProductController extends Controller
         }
         $orderStats = Order::find($order_id);
         $orderStats->status = 'processing';
+        $orderStats->total_amount = $total_amount;
         $orderStats->save();
         return redirect('home');
+    }
+    public function allOrders()
+    {
+        $userId = auth()->user()->id;
+        // $eachOrder = DB::table('ordered_meriendas')
+        //     ->join('orders', 'ordered_meriendas.order_id', '=', 'orders.id')
+        //     ->join('meriendas', 'ordered_meriendas.merienda_id', '=', 'meriendas.id')
+        //     ->where('orders.user_id', '=', $userId)
+        //     ->select('*', 'orders.id as order_id', DB::raw('(meriendas.price * ordered_meriendas.quantity) as priceQuantity'))
+        //     ->get()->groupBy('order_id');
+
+
+        $orders = Order::where('user_id', $userId)->get();
+
+        // $total = DB::table('ordered_meriendas')
+        //     ->join('orders', 'ordered_meriendas.order_id', '=', 'orders.id')
+        //     ->join('meriendas', 'ordered_meriendas.merienda_id', '=', 'meriendas.id')
+        //     ->where('orders.user_id', $userId)
+        //     ->select('orders.id as order_id', DB::raw('(meriendas.price * ordered_meriendas.quantity) as priceQuantity'))
+        //     ->get();
+        // $eachTotal = $total->groupBy('order_id');
+        // $meriendas=OrderedMerienda::where()
+        // return view('all-orders')->with('orders', $orders)->with('allOrders', $allOrders)->with('meriendas', $meriendas);
+
+        // $orders = $eachOrder;
+        // foreach ($orders as $order => $eachOrder) {
+        //     echo "<h2> $order </h2>";
+        //     echo "<h2>  </h2>";
+        //     echo "<ul>";
+        //     foreach ($eachOrder as $merienda) {
+        //         echo "<li>" . $merienda->name. "</li>";
+        //         echo "<li>" . $merienda->quantity. "</li>";
+
+        //     }
+        //     echo "</ul>";
+        // }
+        foreach ($orders as $order) {
+            $order_id = $order->id;
+            $ordered_items = DB::table('ordered_meriendas')
+                ->join('orders', 'ordered_meriendas.order_id', '=', 'orders.id')
+                ->join('meriendas', 'ordered_meriendas.merienda_id', '=', 'meriendas.id')
+                ->where('orders.user_id', $userId)
+                ->where('ordered_meriendas.order_id', $order_id)
+                ->select('*', DB::raw('(meriendas.price * ordered_meriendas.quantity) as priceQuantity'))
+                ->get();
+            // foreach ($eachOrder as $item) {
+            //     echo "<p> $item->name x $item->quantity</p>";
+            //     echo "<p> $item->priceQuantity  </p>";
+            // }
+        }
+        return view('all-orders',['orders'=> $orders,'ordered_items'=>$ordered_items]);
+    }
+
+    public function eachOrder($id)
+    {
+        $order_id = DB::table('orders')
+            ->where('user_id', '=', auth()->user()->id)
+            ->where('id', '=', $id)
+            ->value('orders.id');
+        $userId = auth()->user()->id;
+        $eachOrder = DB::table('ordered_meriendas')
+            ->join('orders', 'ordered_meriendas.order_id', '=', 'orders.id')
+            ->join('meriendas', 'ordered_meriendas.merienda_id', '=', 'meriendas.id')
+            ->where('orders.user_id', $userId)
+            ->where('ordered_meriendas.order_id', $order_id)
+            ->select('*')
+            ->get();
+
+        return $eachOrder;
     }
 }
