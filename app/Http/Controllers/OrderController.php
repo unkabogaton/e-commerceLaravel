@@ -14,8 +14,7 @@ class OrderController extends Controller
      */
     public function index()
     {
-        $orders=Order::all();
-        return view('order')->with('orders', $orders);
+ 
     }
 
     /**
@@ -25,7 +24,7 @@ class OrderController extends Controller
      */
     public function create()
     {
-        return view('order');
+   
     }
 
     /**

@@ -25,25 +25,16 @@ if (Auth::check()) {
         <p> {{$cart_item->quantity}} </p>
         <p> Total: {{$cart_item->priceQuantity}} </p>
 
-        <form action="/minusQty/{{$cart_item->cart_id}}" method="POST">
-            @csrf
-            <input type="hidden" min="1" name="quantity" value={{$cart_item->quantity}}>
-            <button type="submit">minus</button>
-
-        </form>
-
-        <form action="/addQty/{{$cart_item->cart_id}}" method="POST">
-            @csrf
-            <input type="hidden" min="1" name="quantity" value={{$cart_item->quantity}}>
-            <button type="submit">plus</button>
-
-        </form>
-        <a class="btn btn-danger" href="/remove_cart_item/{{$cart_item->cart_id}}">Remove from cart</a>
     </div>
     @endforeach
 
     <p>Order Total: {{$totalPrice}}</p>
 
-    <a href="/order">Proceed to checkout</a>
+
+    <form action="/place_order" method="POST">
+    @csrf
+    <button type="submit">Place Order</button>
+</form>
+    
 
     @endsection
