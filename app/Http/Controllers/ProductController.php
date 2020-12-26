@@ -60,7 +60,7 @@ class ProductController extends Controller
                 $cart1->save();
             }
 
-            return redirect('/home');
+            return redirect('/');
         } else {
             return redirect('/login');
         }
@@ -186,7 +186,7 @@ class ProductController extends Controller
         $orderStats->status = 'processing';
         $orderStats->total_amount = $total_amount;
         $orderStats->save();
-        return redirect('home');
+        return redirect('/');
     }
     public function allOrders()
     {
