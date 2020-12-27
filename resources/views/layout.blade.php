@@ -19,14 +19,21 @@ if (Auth::check()) {
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
-    <link rel="stylesheet" href="{!! asset('css/style.css') !!}">
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
-    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/app.css') }}" rel="stylesheet" media="all">
     <title>MerryYenda</title>
+
     <style>
         @media (max-width: 600px) {
             .card-columns {
                 column-count: 1;
+            }
+
+            .my-image {
+                width: 100%;
+                height: 300px;
+                object-fit: cover;
             }
         }
 
@@ -34,6 +41,12 @@ if (Auth::check()) {
             .card-columns {
                 column-count: 2;
                 column-gap: 2rem;
+            }
+
+            .my-image {
+                width: 100%;
+                height: 300px;
+                object-fit: cover;
             }
         }
 
@@ -43,6 +56,12 @@ if (Auth::check()) {
                 column-count: 2;
                 column-gap: 2rem;
             }
+
+            .my-image {
+                width: 100%;
+                height: 500px;
+                object-fit: cover;
+            }
         }
 
         /* Large devices (desktops, 992px and up) */
@@ -51,15 +70,30 @@ if (Auth::check()) {
                 column-count: 3;
                 column-gap: 3rem;
             }
+
+            .my-image {
+                width: 100%;
+                height: 500px;
+                object-fit: cover;
+            }
         }
 
         /* Extra large devices (large desktops, 1200px and up) */
         @media (min-width: 1200px) {
             .card-columns {
-                column-count: 3;
-                column-gap: 3rem;
+                column-count: 4;
+                column-gap: 2rem;
+            }
+
+            .my-image {
+                width: 100%;
+                height: 500px;
+                object-fit: cover;
             }
         }
+
+
+
 
         .btn-pusha {
             color: #fff;
@@ -119,11 +153,11 @@ if (Auth::check()) {
     </div>
 </div>
 
-<body style="font-family: Poppins, Serif;">
+<body style="font-family: Poppins, Serif;" class="bg-light">
     <nav class="navbar navbar-expand-md navbar-dark" style="background-color:#4d004d;">
         <div class="container-fluid">
             <a class="navbar-brand" href="/">MerryYenda</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" href="/" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarCollapse">
@@ -166,10 +200,8 @@ if (Auth::check()) {
 
 
 
-    <div class="album py-5" style="background-color: white;">
+    <div class="album py-4 bg-light">
         <div class="container">
-
-
             @yield ('content')
         </div>
     </div>

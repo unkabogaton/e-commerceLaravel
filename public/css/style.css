@@ -2,34 +2,8 @@
 
 
 
-.btn-pusha {
-  color: #fff;
-  background-color: #660066;
-  border-color: #660066;
-}
-.btn-pusha:hover {
-  color: #fff;
-  background-color:  #660066;
-  border-color:  #660066;
-}
-.btn-check:focus + .btn-pusha, .btn-pusha:focus {
-  color: #fff;
-  background-color:  #660066;
-  border-color: # #660066;
-  box-shadow: 0 0 0 0.25rem rgba(51, 0, 51, 0.5);
-}
-.btn-check:checked + .btn-pusha, .btn-check:active + .btn-pusha, .btn-pusha:active, .btn-pusha.active, .show > .btn-pusha.dropdown-toggle {
-  color: #fff;
-  background-color:  #660066;
-  border-color:  #660066;
-}
-.btn-check:checked + .btn-pusha:focus, .btn-check:active + .btn-pusha:focus, .btn-pusha:active:focus, .btn-pusha.active:focus, .show > .btn-pusha.dropdown-toggle:focus {
-  box-shadow: 0 0 0 0.25rem rgba(51, 0, 51, 0.5);
-}
-.btn-pusha:disabled, .btn-pusha.disabled {
-  color: #fff;
-  background-color: #660066;
-  border-color: #660066;
+.pusha {
+  color: #660066;
 }
 
 

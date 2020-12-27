@@ -134,8 +134,9 @@ class ProductController extends Controller
 
         $createOrder = new Order;
         $createOrder->user_id = auth()->user()->id;
-        $createOrder->billing_name = $request->billing_name;
+        $createOrder->billing_name = $request->first_name . " " . $request->last_name;
         $createOrder->billing_address = $request->billing_address;
+        $createOrder->email = $request->email;
         $createOrder->payment_mode = $request->payment_mode;
         $createOrder->status = $request->status;
         if (!$orderExist) {
@@ -157,7 +158,13 @@ class ProductController extends Controller
             ->select('*', 'carts.id as cart_id', DB::raw('(meriendas.price * carts.quantity) as priceQuantity'))
             ->get();
 
-        return view('order-summary')->with('cart_items', $cart_items);
+        $order_details = DB::table('orders')
+            ->where('user_id', $userId)
+            ->where('status', 'pending')
+            ->select('*')
+            ->get();
+
+        return view('order-summary', ['cart_items' => $cart_items, 'order_details' => $order_details]);
     }
 
     public function placeOrder(Request $request)
@@ -237,7 +244,7 @@ class ProductController extends Controller
             //     echo "<p> $item->priceQuantity  </p>";
             // }
         }
-        return view('all-orders',['orders'=> $orders,'ordered_items'=>$ordered_items]);
+        return view('all-orders', ['orders' => $orders, 'ordered_items' => $ordered_items]);
     }
 
     public function eachOrder($id)
