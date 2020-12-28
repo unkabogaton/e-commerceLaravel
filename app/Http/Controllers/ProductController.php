@@ -7,6 +7,7 @@ use App\Models\Merienda;
 use App\Models\Cart;
 use App\Models\Order;
 use App\Models\OrderedMerienda;
+use App\Models\DeliveryInfo;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -72,6 +73,12 @@ class ProductController extends Controller
         return Cart::where('user_id', $userId)->sum('quantity');
     }
 
+    static function orderItem()
+    {
+        $userId = auth()->user()->id;
+        return Order::where('user_id', $userId)->where('status', '!=', 'pending')->count('id');
+    }
+
     public function cart()
     {
         $meriendas = Merienda::inRandomOrder()->get();
@@ -134,11 +141,9 @@ class ProductController extends Controller
 
         $createOrder = new Order;
         $createOrder->user_id = auth()->user()->id;
-        $createOrder->billing_name = $request->first_name . " " . $request->last_name;
-        $createOrder->billing_address = $request->billing_address;
-        $createOrder->email = $request->email;
+        $createOrder->delivery_info_id = $request->delivery_info_id;
         $createOrder->payment_mode = $request->payment_mode;
-        $createOrder->status = $request->status;
+        $createOrder->status = 'pending';
         if (!$orderExist) {
             $createOrder->save();
         } else {
@@ -159,9 +164,10 @@ class ProductController extends Controller
             ->get();
 
         $order_details = DB::table('orders')
-            ->where('user_id', $userId)
+            ->join('delivery_info', 'orders.delivery_info_id', '=', 'delivery_info.id')
+            ->where('orders.user_id', $userId)
             ->where('status', 'pending')
-            ->select('*')
+            ->select('*', 'orders.id as order_id')
             ->get();
 
         return view('order-summary', ['cart_items' => $cart_items, 'order_details' => $order_details]);
@@ -198,53 +204,13 @@ class ProductController extends Controller
     public function allOrders()
     {
         $userId = auth()->user()->id;
-        // $eachOrder = DB::table('ordered_meriendas')
-        //     ->join('orders', 'ordered_meriendas.order_id', '=', 'orders.id')
-        //     ->join('meriendas', 'ordered_meriendas.merienda_id', '=', 'meriendas.id')
-        //     ->where('orders.user_id', '=', $userId)
-        //     ->select('*', 'orders.id as order_id', DB::raw('(meriendas.price * ordered_meriendas.quantity) as priceQuantity'))
-        //     ->get()->groupBy('order_id');
-
-
-        $orders = Order::where('user_id', $userId)->get();
-
-        // $total = DB::table('ordered_meriendas')
-        //     ->join('orders', 'ordered_meriendas.order_id', '=', 'orders.id')
-        //     ->join('meriendas', 'ordered_meriendas.merienda_id', '=', 'meriendas.id')
-        //     ->where('orders.user_id', $userId)
-        //     ->select('orders.id as order_id', DB::raw('(meriendas.price * ordered_meriendas.quantity) as priceQuantity'))
-        //     ->get();
-        // $eachTotal = $total->groupBy('order_id');
-        // $meriendas=OrderedMerienda::where()
-        // return view('all-orders')->with('orders', $orders)->with('allOrders', $allOrders)->with('meriendas', $meriendas);
-
-        // $orders = $eachOrder;
-        // foreach ($orders as $order => $eachOrder) {
-        //     echo "<h2> $order </h2>";
-        //     echo "<h2>  </h2>";
-        //     echo "<ul>";
-        //     foreach ($eachOrder as $merienda) {
-        //         echo "<li>" . $merienda->name. "</li>";
-        //         echo "<li>" . $merienda->quantity. "</li>";
-
-        //     }
-        //     echo "</ul>";
-        // }
-        foreach ($orders as $order) {
-            $order_id = $order->id;
-            $ordered_items = DB::table('ordered_meriendas')
-                ->join('orders', 'ordered_meriendas.order_id', '=', 'orders.id')
-                ->join('meriendas', 'ordered_meriendas.merienda_id', '=', 'meriendas.id')
-                ->where('orders.user_id', $userId)
-                ->where('ordered_meriendas.order_id', $order_id)
-                ->select('*', DB::raw('(meriendas.price * ordered_meriendas.quantity) as priceQuantity'))
-                ->get();
-            // foreach ($eachOrder as $item) {
-            //     echo "<p> $item->name x $item->quantity</p>";
-            //     echo "<p> $item->priceQuantity  </p>";
-            // }
-        }
-        return view('all-orders', ['orders' => $orders, 'ordered_items' => $ordered_items]);
+        $orders = DB::table('orders')
+            ->join('delivery_info', 'orders.delivery_info_id', '=', 'delivery_info.id')
+            ->where('orders.user_id', $userId)
+            ->where('status', '!=', 'pending')
+            ->select('*', 'orders.id as order_id')
+            ->get();
+        return view('all-orders')->with('orders', $orders);
     }
 
     public function eachOrder($id)
@@ -259,9 +225,102 @@ class ProductController extends Controller
             ->join('meriendas', 'ordered_meriendas.merienda_id', '=', 'meriendas.id')
             ->where('orders.user_id', $userId)
             ->where('ordered_meriendas.order_id', $order_id)
-            ->select('*')
+            ->select('*', DB::raw('(meriendas.price * ordered_meriendas.quantity) as priceQuantity'))
+            ->get();
+        $order_details = DB::table('orders')
+            ->join('delivery_info', 'orders.delivery_info_id', '=', 'delivery_info.id')
+            ->where('orders.user_id', $userId)
+            ->where('orders.id', $order_id)
+            ->select('*', 'orders.id as order_id')
             ->get();
 
-        return $eachOrder;
+        return view('order-detail', ['eachOrder' => $eachOrder, 'order_details' => $order_details]);
+    }
+
+    public function cancelOrder($id)
+    {
+        $order = Order::find($id);
+        if ($order->status==='processing') {
+            Order::destroy($id);
+            OrderedMerienda::where('order_id', $id)->delete();
+            return redirect('all-orders');
+        } else {
+            return redirect('all-orders');;
+        }
+    }
+
+    public function showOrder($id)
+    {
+        $userId = auth()->user()->id;
+        $info = Order::where('id', $id)->get();
+        $deliveries = DeliveryInfo::where('user_id', $userId)->get();
+        return view('edit-order', ['info' => $info, 'deliveries' => $deliveries]);
+    }
+
+    public function editOrder(Request $request, $id)
+    {
+        $editOrder = Order::find($id);
+        $editOrder->user_id = auth()->user()->id;
+        $editOrder->delivery_info_id = $request->delivery_info_id;;
+        $editOrder->payment_mode = $request->payment_mode;
+        $editOrder->save();
+        return redirect('order-summary');
+    }
+
+    public function deliveries()
+    {
+        $userId = auth()->user()->id;
+        $deliveries = DeliveryInfo::where('user_id', $userId)->get();
+        return view('order')->with('deliveries', $deliveries);
+    }
+
+    public function delivery($id)
+    {
+        $delivery = DeliveryInfo::where('id', $id)->get();
+        return view('edit-delivery')->with('delivery', $delivery);
+    }
+
+    public function editDelivery(Request $request, $id)
+    {
+        $editDelivery = DeliveryInfo::find($id);
+        $editDelivery->user_id = auth()->user()->id;
+        $editDelivery->full_name = $request->full_name;
+        $editDelivery->contact_number = $request->contact_number;
+        $editDelivery->address = $request->billing_address;
+        $editDelivery->email = $request->email;
+        $editDelivery->save();
+
+        return redirect('order');
+    }
+
+    public function deleteDelivery($id)
+    {
+        DeliveryInfo::destroy($id);
+        return redirect('order');
+    }
+
+
+    public function addDelivery(Request $request)
+    {
+        $addDelivery = new DeliveryInfo;
+        $addDelivery->user_id = auth()->user()->id;
+        $addDelivery->full_name = $request->full_name;
+        $addDelivery->contact_number = $request->contact_number;
+        $addDelivery->address = $request->billing_address;
+        $addDelivery->email = $request->email;
+        $addDelivery->save();
+
+        return redirect('order');
+    }
+
+    public function search(Request $request)
+    {
+        $q = $request->search;
+        $meriendas = DB::table('meriendas')
+            ->where('name', 'like', '%' . $q . '%')
+            ->orWhere('price', 'like', '%' . $q . '%')
+            ->get();
+
+        return view('home')->with('meriendas', $meriendas);
     }
 }

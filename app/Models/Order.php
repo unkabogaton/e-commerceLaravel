@@ -10,9 +10,4 @@ class Order extends Model
     protected $guarded = [];
     use HasFactory;
     public $table = "orders";
-
-    public function orders()
-    {
-        return $this->hasManyThrough(Order::class, OrderedMerienda::class);
-    }
 }

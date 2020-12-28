@@ -14,7 +14,7 @@ if (Auth::check()) {
 <h1>
     Cart
 </h1>
-
+@if($totalPrice!==0)
 @foreach ($cart_items as $cart_item)
 <div class="card p-3 my-2 shadow">
     <div class="row">
@@ -49,7 +49,7 @@ if (Auth::check()) {
                     <h5 class="mt-2 ml-sm-0 ml-auto">P {{$cart_item->priceQuantity}}</h5>
                 </div>
                 <div class="col-md-2 col-sm-6 col-12 text-center form-inline mt-sm-0 mt-2">
-                    <a class="btn btn-danger btn-sm ml-sm-0 ml-auto" href="/remove_cart_item/{{$cart_item->cart_id}}">Remove</a>
+                    <a class="btn btn-danger btn-sm ml-sm-0 ml-auto" href="/remove_cart_item/{{$cart_item->cart_id}}"><span><i class="fa fa-trash"></i></span> Remove</a>
                 </div>
             </div>
         </div>
@@ -71,13 +71,20 @@ if (Auth::check()) {
         <h2 class=""> <strong>P {{$totalPrice}}</strong> </h2>
     </div>
     <div class="col-lg-2 col-12 text-end mb-1 mt-lg-0 mt-3">
-        <a href="/order" class="btn btn-pusha">Proceed to checkout</a>
+        <a href="/order" class="btn btn-pusha">Checkout <span><i class="fa fa-arrow-right"></i></span></a>
     </div>
 
 </div>
 
 
 </div>
+
+@else
+<div class="text-center"><h4>Oops! Your cart is empty</h4>
+<a class="btn btn-pusha" href="/"><span><i class="fa fa-shopping-bag"></i></span> Shop Now</a></div>
+
+
+@endif
 
 
 
