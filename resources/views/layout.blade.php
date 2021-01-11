@@ -95,7 +95,15 @@ if (Auth::check()) {
             }
         }
 
+        .border1 {
+            border-top: 5px solid green;
+        }
 
+        .black {
+            background: black;
+            color: white;
+            border: 0px solid;
+        }
 
 
         .btn-pusha {
@@ -157,9 +165,9 @@ if (Auth::check()) {
 </div>
 
 <body style="font-family: Poppins, Serif;" class="bg-light">
-    <nav class="navbar navbar-expand-md navbar-dark" style="background-color:#4d004d;">
+    <nav class="navbar navbar-expand-md navbar-dark shadow sticky-top" style="background-color:#4d004d;">
         <div class="container-fluid">
-            <img src="https://cdn.nohat.cc/thumb/f/720/comrawpixel543534.jpg" alt="Merry Icon" style="width:40px; border-radius: 8px;" class="shadow">
+            <a href="/"><img src="https://cdn.nohat.cc/thumb/f/720/comrawpixel543534.jpg" alt="Merry Icon" style="width:40px; border-radius: 8px;" class="shadow"></a>
             <a class="navbar-brand ml-2" href="/"><strong>Merry</strong><span class="ml-1">Yenda</span></a>
             <button class="navbar-toggler" type="button" href="/" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -195,7 +203,7 @@ if (Auth::check()) {
                     </li>
                     @endif
                 </ul>
-                <form class="form-inline my-2 my-md-0" action="{{url('search')}}"  role="search">
+                <form class="form-inline my-2 my-md-0" action="{{url('search')}}" role="search">
                     @csrf
                     <input class="form-control" type="text" name="search" placeholder="Search" aria-label="Search">
                 </form>
@@ -207,8 +215,19 @@ if (Auth::check()) {
     <div class="album py-4 bg-light">
         <div class="container">
             @yield ('content')
+            @if(session()->has('message'))
+            <div class="row">
+                <div class="col-md-5 col-11 alert alert-warning alert-dismissible fade show black fixed-bottom mx-auto" role="alert">
+                    {{ session()->get('message') }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+            @endif
         </div>
     </div>
+
     <script src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous">
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>

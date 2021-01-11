@@ -44,6 +44,7 @@ class ProductController extends Controller
                 ->where('user_id', '=', auth()->user()->id)
                 ->where('merienda_id', '=', $request->merienda_id)
                 ->first();
+            $food =  Merienda::where('id', '=', $request->merienda_id)->value('name');
             if (!$result) {
                 $cart->save();
             } else {
@@ -61,7 +62,7 @@ class ProductController extends Controller
                 $cart1->save();
             }
 
-            return redirect('/');
+            return redirect('/')->with('message', 'You successfully added ' . $request->quantity . ' ' . $food . ' to your cart!');
         } else {
             return redirect('/login');
         }
@@ -94,13 +95,17 @@ class ProductController extends Controller
 
     public function removeCartItem($id)
     {
+        $cartItem = DB::table('carts')
+            ->join('meriendas', 'carts.merienda_id', '=', 'meriendas.id')
+            ->where('carts.id', $id)
+            ->value('name');
         Cart::destroy($id);
-        return redirect('cart');
+        // return $cartItem;
+        return redirect('cart')->with('message', $cartItem . ' is removed from your cart!');
     }
 
     static function totalPrice()
     {
-        $meriendas = Merienda::inRandomOrder()->get();
         $userId = auth()->user()->id;
         return $cart_items = DB::table('carts')
             ->join('meriendas', 'carts.merienda_id', '=', 'meriendas.id')
@@ -199,7 +204,7 @@ class ProductController extends Controller
         $orderStats->status = 'processing';
         $orderStats->total_amount = $total_amount;
         $orderStats->save();
-        return redirect('/');
+        return redirect('/')->with('message', 'Order was placed!');
     }
     public function allOrders()
     {
@@ -208,9 +213,18 @@ class ProductController extends Controller
             ->join('delivery_info', 'orders.delivery_info_id', '=', 'delivery_info.id')
             ->where('orders.user_id', $userId)
             ->where('status', '!=', 'pending')
+            ->where('status', '!=', 'delivered')
             ->select('*', 'orders.id as order_id')
             ->get();
-        return view('all-orders')->with('orders', $orders);
+
+        $done = DB::table('orders')
+            ->join('delivery_info', 'orders.delivery_info_id', '=', 'delivery_info.id')
+            ->where('orders.user_id', $userId)
+            ->where('status', '=', 'delivered')
+            ->select('*', 'orders.id as order_id')
+            ->get();
+
+        return view('all-orders', ['orders' => $orders, 'done' => $done]);
     }
 
     public function eachOrder($id)
@@ -240,12 +254,12 @@ class ProductController extends Controller
     public function cancelOrder($id)
     {
         $order = Order::find($id);
-        if ($order->status==='processing') {
+        if ($order->status === 'processing') {
             Order::destroy($id);
             OrderedMerienda::where('order_id', $id)->delete();
-            return redirect('all-orders');
+            return redirect('all-orders')->with('message', 'Order was successfully cancelled!');
         } else {
-            return redirect('all-orders');;
+            return redirect('all-orders');
         }
     }
 
@@ -322,5 +336,126 @@ class ProductController extends Controller
             ->get();
 
         return view('home')->with('meriendas', $meriendas);
+    }
+    public function adminOrders()
+    {
+        $processing = DB::table('orders')
+            ->join('users', 'orders.user_id', '=', 'users.id')
+            ->where('status', 'processing')
+            ->select('*', 'orders.id as id')
+            ->get();
+
+
+        return view('admin-proc', ['processing' => $processing]);
+    }
+
+    public function adminPrep()
+    {
+        $preparing = DB::table('orders')
+            ->join('users', 'orders.user_id', '=', 'users.id')
+            ->where('status', 'preparing')
+            ->select('*', 'orders.id as id')
+            ->get();
+        return view('admin-prep')->with('preparing', $preparing);
+    }
+
+    public function adminShip()
+    {
+        $shipping = DB::table('orders')
+            ->join('users', 'orders.user_id', '=', 'users.id')
+            ->where('status', 'shipping')
+            ->select('*', 'orders.id as id')
+            ->get();
+        return view('admin-ship')->with('shipping', $shipping);
+    }
+
+    public function adminTransactions()
+    {
+        $delivered = DB::table('orders')
+            ->join('users', 'orders.user_id', '=', 'users.id')
+            ->where('status', 'delivered')
+            ->select('*', 'orders.id as id')
+            ->get();
+
+        return view('admin-transactions')->with('delivered', $delivered);
+    }
+
+    public function adminEachOrder($id)
+    {
+        $order_id = DB::table('orders')
+            ->where('id', '=', $id)
+            ->value('orders.id');
+        $eachOrder = DB::table('ordered_meriendas')
+            ->join('orders', 'ordered_meriendas.order_id', '=', 'orders.id')
+            ->join('meriendas', 'ordered_meriendas.merienda_id', '=', 'meriendas.id')
+            ->where('ordered_meriendas.order_id', $order_id)
+            ->select('*', DB::raw('(meriendas.price * ordered_meriendas.quantity) as priceQuantity'))
+            ->get();
+        $order_details = DB::table('orders')
+            ->join('delivery_info', 'orders.delivery_info_id', '=', 'delivery_info.id')
+            ->where('orders.id', $order_id)
+            ->select('*', 'orders.id as order_id')
+            ->get();
+
+        return view('admin-order-detail', ['eachOrder' => $eachOrder, 'order_details' => $order_details]);
+    }
+
+    public function markPrepare($id)
+    {
+        $order = Order::find($id);
+        $order->status = 'preparing';
+        $order->save();
+        return redirect()->back();
+    }
+
+    public function markShip($id)
+    {
+        $order = Order::find($id);
+        $order->status = 'shipping';
+        $order->save();
+        return redirect()->back();
+    }
+
+    public function markFinished($id)
+    {
+        $order = Order::find($id);
+        $order->status = 'delivered';
+        $order->save();
+        return redirect()->back();
+    }
+    public function undoPrepare($id)
+    {
+        $order = Order::find($id);
+        $order->status = 'processing';
+        $order->save();
+        return redirect()->back();
+    }
+    public function undoShip($id)
+    {
+        $order = Order::find($id);
+        $order->status = 'preparing';
+        $order->save();
+        return redirect()->back();
+    }
+    public function undoFinished($id)
+    {
+        $order = Order::find($id);
+        $order->status = 'shipping';
+        $order->save();
+        return redirect()->back();
+    }
+    static function proc()
+    {
+        return Order::where('status', 'processing')->count();
+    }
+
+    static function prep()
+    {
+        return Order::where('status', 'preparing')->count();
+    }
+
+    static function ship()
+    {
+        return Order::where('status', 'shipping')->count();
     }
 }

@@ -19,6 +19,7 @@
                     <th class="text-center font-weight-light">Delete</th>
                 </tr>
             </thead>
+
             <tbody>
                 @foreach ($deliveries as $delivery)
                 <tr>
@@ -37,6 +38,10 @@
                 @endforeach
             </tbody>
         </table>
+
+        @if($deliveries->count()==0)
+        <p>You do not have existing record of your delivery information, create then select one to proceed creating your order.</p>
+        @endif
 
         <div class="col-md-4 d-flex justify-content-center mt-1 mx-auto">
             <a href="/add-delivery" class="btn btn-success btn-sm"><span><i class="fa fa-plus"></i></span> Add Delivery Information</a>
@@ -57,7 +62,7 @@
                     <label class="form-check-label" for="inlineRadio1">Cash on Delivery</label>
                 </div>
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="payment_mode" id="inlineRadio2" value="GCash" required >
+                    <input class="form-check-input" type="radio" name="payment_mode" id="inlineRadio2" value="GCash" required>
                     <label class="form-check-label" for="inlineRadio2">GCash</label>
                 </div>
                 <div class="invalid-feedback">
@@ -67,7 +72,11 @@
         </div>
     </div>
     <br>
-    <div class="d-flex justify-content-end"><button type="submit" class="btn btn-pusha ml-auto">Create Order  <span class="ml-1"><i class="fa fa-arrow-right"></i></span></button></div>
+    @if($deliveries->count()==0)
+    <div class="d-flex justify-content-end"><button class="btn btn-pusha disabled ml-auto">Create Order <span class="ml-1"><i class="fa fa-arrow-right"></i></span></button></div>
+    @else
+    <div class="d-flex justify-content-end"><button type="submit" class="btn btn-pusha ml-auto">Create Order <span class="ml-1"><i class="fa fa-arrow-right"></i></span></button></div>
+    @endif
 </form>
 
 

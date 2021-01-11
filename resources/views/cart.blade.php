@@ -10,10 +10,11 @@ if (Auth::check()) {
 }
 
 ?>
-
+<br>
 <h1>
     Cart
 </h1>
+<br>
 @if($totalPrice!==0)
 @foreach ($cart_items as $cart_item)
 <div class="card p-3 my-2 shadow">

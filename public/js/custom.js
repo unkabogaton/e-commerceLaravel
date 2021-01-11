@@ -1,41 +1,41 @@
 (function ($) {
-	
+
 	"use strict";
 
-	$(function() {
-        $("#tabs").tabs();
-    });
-
-	$(window).scroll(function() {
-	  var scroll = $(window).scrollTop();
-	  var box = $('.header-text').height();
-	  var header = $('header').height();
-
-	  if (scroll >= box - header) {
-	    $("header").addClass("background-header");
-	  } else {
-	    $("header").removeClass("background-header");
-	  }
+	$(function () {
+		$("#tabs").tabs();
 	});
-	
 
-	$('.schedule-filter li').on('click', function() {
-        var tsfilter = $(this).data('tsfilter');
-        $('.schedule-filter li').removeClass('active');
-        $(this).addClass('active');
-        if (tsfilter == 'all') {
-            $('.schedule-table').removeClass('filtering');
-            $('.ts-item').removeClass('show');
-        } else {
-            $('.schedule-table').addClass('filtering');
-        }
-        $('.ts-item').each(function() {
-            $(this).removeClass('show');
-            if ($(this).data('tsmeta') == tsfilter) {
-                $(this).addClass('show');
-            }
-        });
-    });
+	$(window).scroll(function () {
+		var scroll = $(window).scrollTop();
+		var box = $('.header-text').height();
+		var header = $('header').height();
+
+		if (scroll >= box - header) {
+			$("header").addClass("background-header");
+		} else {
+			$("header").removeClass("background-header");
+		}
+	});
+
+
+	$('.schedule-filter li').on('click', function () {
+		var tsfilter = $(this).data('tsfilter');
+		$('.schedule-filter li').removeClass('active');
+		$(this).addClass('active');
+		if (tsfilter == 'all') {
+			$('.schedule-table').removeClass('filtering');
+			$('.ts-item').removeClass('show');
+		} else {
+			$('.schedule-table').addClass('filtering');
+		}
+		$('.ts-item').each(function () {
+			$(this).removeClass('show');
+			if ($(this).data('tsmeta') == tsfilter) {
+				$(this).addClass('show');
+			}
+		});
+	});
 
 
 	// Window Resize Mobile Menu Fix
@@ -44,43 +44,43 @@
 
 	// Scroll animation init
 	window.sr = new scrollReveal();
-	
+
 
 	// Menu Dropdown Toggle
-	if($('.menu-trigger').length){
-		$(".menu-trigger").on('click', function() {	
+	if ($('.menu-trigger').length) {
+		$(".menu-trigger").on('click', function () {
 			$(this).toggleClass('active');
 			$('.header-area .nav').slideToggle(200);
 		});
 	}
 
 
-	function onScroll(event){
-	    var scrollPos = $(document).scrollTop();
-	    $('.nav a').each(function () {
-	        var currLink = $(this);
-	        var refElement = $(currLink.attr("href"));
-	        if (refElement.position().top <= scrollPos && refElement.position().top + refElement.height() > scrollPos) {
-	            $('.nav ul li a').removeClass("active");
-	            currLink.addClass("active");
-	        }
-	        else{
-	            currLink.removeClass("active");
-	        }
-	    });
+	function onScroll(event) {
+		var scrollPos = $(document).scrollTop();
+		$('.nav a').each(function () {
+			var currLink = $(this);
+			var refElement = $(currLink.attr("href"));
+			if (refElement.position().top <= scrollPos && refElement.position().top + refElement.height() > scrollPos) {
+				$('.nav ul li a').removeClass("active");
+				currLink.addClass("active");
+			}
+			else {
+				currLink.removeClass("active");
+			}
+		});
 	}
 
 
 	// Page loading animation
-	 $(window).on('load', function() {
+	$(window).on('load', function () {
 
-        $('#js-preloader').addClass('loaded');
+		$('#js-preloader').addClass('loaded');
 
-    });
+	});
 
 
 	// Window Resize Mobile Menu Fix
-	$(window).on('resize', function() {
+	$(window).on('resize', function () {
 		mobileNav();
 	});
 
@@ -88,13 +88,24 @@
 	// Window Resize Mobile Menu Fix
 	function mobileNav() {
 		var width = $(window).width();
-		$('.submenu').on('click', function() {
-			if(width < 767) {
+		$('.submenu').on('click', function () {
+			if (width < 767) {
 				$('.submenu ul').removeClass('active');
 				$(this).find('ul').toggleClass('active');
 			}
 		});
 	}
+
+	$(".alert-dismissible").fadeTo(6000, 800).slideUp(800, function () {
+		$(".alert-dismissible").alert('close');
+	});
+
+	$("#quantity").on('keyup', function () {
+		var totalcost = $("#price").val() * $(this).val()
+		$(".total_cost").html(totalcost);
+	});
+
+	
 
 
 })(window.jQuery);

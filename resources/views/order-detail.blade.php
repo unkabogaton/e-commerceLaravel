@@ -3,6 +3,23 @@
 
 @foreach($order_details as $order)
 <h2>Order #{{$order->order_id}}</h2>
+<p><strong>Notice:</strong> Orders cannot be cancelled once they have the status "preparing". Thank you!</p>
+<div class="card px-4 py-2 my-2 shadow">
+    <div class="row g-2 text-center">
+        <div class="col-md-3 col-6 px-3 pt-3 pb-n1 {{$order->status == 'processing' || $order->status=='preparing' || $order->status=='shipping' || $order->status=='delivered' ? 'bg-light border1' : 'text-muted'}}"><button class="rounded-circle btn {{$order->status == 'processing' || $order->status=='preparing' || $order->status=='shipping' || $order->status=='delivered' ? 'btn-success shadow' : 'btn-secondary disabled'}}" style="width: 38px;"><i class="fa fa-clipboard"></i></button>
+            <p class="mt-2">processing</p>
+        </div>
+        <div class="col-md-3 col-6 px-3 pt-3 pb-n1 {{$order->status == 'preparing' || $order->status=='shipping' || $order->status=='delivered' ? 'bg-light border1' : 'text-muted'}}"><button class="rounded-circle btn {{$order->status == 'preparing' || $order->status=='shipping' || $order->status=='delivered' ? 'btn-success shadow' : 'btn-secondary disabled'}}" style="width: 38px;"><i class="fa fa-box"></i></button>
+            <p class="mt-2">preparing</p>
+        </div>
+        <div class="col-md-3 col-6 px-3 pt-3 pb-n1 {{$order->status == 'shipping' || $order->status=='delivered'  ? 'bg-light border1' : 'text-muted'}}"><button class="rounded-circle btn {{$order->status == 'shipping' || $order->status=='delivered'  ? 'btn-success shadow' : 'btn-secondary disabled'}}" style="width: 38px;"><i class="fa fa-shipping-fast"></i></button>
+            <p class="mt-2">shipping</p>
+        </div>
+        <div class="col-md-3 col-6 px-3 pt-3 pb-n1 {{$order->status == 'delivered'  ? 'bg-light border1' : 'text-muted'}}"><button class="rounded-circle btn {{$order->status == 'delivered'  ? 'btn-success shadow' : 'btn-secondary disabled'}}" style="width: 38px;"><i class="fa fa-hand-holding-heart"></i></button>
+            <p class="mt-2">delivered</p>
+        </div>
+    </div>
+</div>
 @endforeach
 
 <div class="row">
@@ -43,9 +60,6 @@
     <div class="col-md-6">
         @foreach($order_details as $order)
         <div class="card p-4 my-2 shadow">
-            <h6>Created at: </h6>
-            <h6 class="font-weight-bold mt-n1">{{$order->created_at}}</h6>
-            <br>
             <h6 class="text-muted">Deliver to</h6>
             <h6>Name: </h6>
             <h6 class="font-weight-bold mt-n1">{{$order->full_name}}</h6>
@@ -62,10 +76,14 @@
             <h6>Payment Method: </h6>
             <h6 class="font-weight-bold mt-n1">{{$order->payment_mode}}</h6>
         </div>
+
         <div class="d-flex justify-content-end mt-4">
+            @if($order->status == 'processing')
             <a href="/cancel-order/{{$order->order_id}}" class="btn btn-danger btn-sm d-flex d-inline-block mr-4">Cancel Order</a>
+            @endif
             <a href="/all-orders" class="btn btn-pusha btn-sm d-flex d-inline-block">Back</a>
         </div>
+
         @endforeach
 
     </div>

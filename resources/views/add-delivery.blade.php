@@ -11,7 +11,7 @@
             <h4 class="mb-3">Deliver to</h4>
             <div class="row">
                 <div class="col-md-12 mb-3">
-                    <label for="full_name">First name</label>
+                    <label for="full_name">Full name</label>
                     <input name="full_name" type="text" class="form-control" id="full_name" placeholder="" value="" required>
                     <div class="invalid-feedback">
                         Please enter a valid email address for shipping updates.

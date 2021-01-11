@@ -14,17 +14,18 @@
                             <h3 class="card-text d-inline-block mr-0">P {{ $merienda->price }} </h3>
                     </div>
 
-
                     <form action="/add_to_cart" method="POST" class="form-inline d-flex justify-content-between">
                         @csrf
                         <div class="d-inline-block">
                             <h5 class="d-inline-block">Quantity</h5>
-                            <input type="number" min="1" step="1" name="quantity" value="1" class="w-25 d-inline-block form-control-sm form-control">
+                            <input type="number" min="1" step="1" name="quantity" id="quantity" value="1" class="w-25 d-inline-block form-control-sm form-control">
+                            <input type="hidden" name="price" id="price" value={{ $merienda->price }} />
+                            <p><span class="total_cost"></span></p>
                         </div>
 
                         <input type="hidden" name="merienda_id" value={{$merienda->id}}>
-                        <button type="submit" class="btn btn-pusha d-inline-block ml-auto"><span><i class="fa fa-cart-plus"></i></span> 
-                        Add to cart</button>
+                        <button type="submit" class="btn btn-pusha d-inline-block ml-auto"><span><i class="fa fa-cart-plus"></i></span>
+                            Add to cart</button>
                     </form>
                     <p class="mt-3 text-justify">{{ $merienda->details }}</p>
                 </div>
